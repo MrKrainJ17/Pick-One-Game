@@ -288,8 +288,10 @@ button { font-family: inherit; color: inherit; background: none; border: none; }
 }
 .matchup-progress { font-size: 0.68rem; color: var(--text-dim); margin-top: 0.05rem; }
 
-/* desktop / landscape: split left-right */
-@media (orientation: landscape) and (min-width: 720px) {
+/* Any landscape orientation: matchup options sit side-by-side rather than
+   stacked top/bottom. Applies to mobile landscape too — the next media
+   query shrinks fonts/images so it actually fits in short viewports. */
+@media (orientation: landscape) {
   .matchup { grid-template-rows: none; grid-template-columns: 1fr 1fr; }
   .option[data-side="0"] {
     border-bottom: none;
@@ -986,4 +988,157 @@ body.no-scroll {
   font-size: 0.8rem;
   color: var(--text-dim);
   font-variant-numeric: tabular-nums;
+}
+
+
+/* =========================================================
+   Mobile landscape (max-height: 500px in landscape)
+   Phones rotated to landscape are wide but very short
+   (~390-430 px tall). Shrink controls, text, images, and
+   padding so the matchup fits without scrolling. Tablets
+   and desktops in landscape have height >500 and skip these
+   rules.
+   ========================================================= */
+@media (orientation: landscape) and (max-height: 500px) {
+
+  /* Top-center toggle pills — tighter footprint */
+  .controls {
+    top: max(0.4rem, env(safe-area-inset-top, 0px));
+    gap: 0.35rem;
+  }
+  .control-btn {
+    width: 1.85rem;
+    height: 1.85rem;
+    font-size: 0.8rem;
+  }
+
+  /* Round/match pill in the matchup center — smaller pill, tighter text */
+  .matchup-header {
+    padding: 0.25rem 0.7rem;
+  }
+  .matchup-round    { font-size: 0.62rem; }
+  .matchup-progress { font-size: 0.56rem; }
+
+  /* Each option button: cap image at ~65% of the (very short) button
+     height so it doesn't shove the name off-screen. */
+  .option {
+    padding: 0.5rem 0.65rem;
+    gap: 0.2rem;
+  }
+  .option-image img {
+    max-width: min(65%, 220px);
+    max-height: 65%;
+  }
+  .option-image .emoji-fallback {
+    font-size: clamp(2.5rem, 14vh, 5rem);
+  }
+  .option .name {
+    font-size: clamp(0.85rem, 3.6vh, 1.4rem);
+    padding: 0 0.5rem 0.2rem;
+  }
+
+  /* Home screen — denser so all categories are reachable in one scroll */
+  .home {
+    padding: calc(env(safe-area-inset-top, 0px) + 3.25rem) 1.25rem
+             calc(env(safe-area-inset-bottom, 0px) + 3rem);
+    gap: 0.7rem;
+  }
+  .home-hero { padding-top: 0; }
+  .home-title {
+    font-size: clamp(2.25rem, 11vw, 4rem);
+    line-height: 0.9;
+  }
+  .home-subtitle {
+    margin-top: 0.3rem;
+    font-size: 0.78rem;
+  }
+  .surprise-btn {
+    padding: 0.6rem;
+    font-size: 0.92rem;
+  }
+  .category-card {
+    padding: 0.6rem 0.85rem;
+    gap: 0.7rem;
+  }
+  .category-card .cat-icon {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+  .category-card .emoji-fallback {
+    font-size: 1.5rem;
+    width: 1.7rem;
+  }
+  .category-card .name  { font-size: 1rem; }
+  .category-card .count { font-size: 0.7rem; }
+  .champions-btn {
+    padding: 0.55rem;
+    font-size: 0.85rem;
+  }
+
+  /* Bracket reveal — header + actions take less vertical space, so
+     fitBracket() has more room and scales the bracket up. */
+  .reveal {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 2.5rem);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 3.25rem);
+  }
+  .reveal-header { padding: 0.25rem 1rem 0.25rem; }
+  .reveal-title  { font-size: 0.65rem; }
+  .reveal-progress {
+    font-size: 0.85rem;
+    margin-top: 0.15rem;
+  }
+  .reveal-champion {
+    font-size: clamp(1.25rem, 5.5vw, 1.85rem);
+    margin-top: 0.15rem;
+  }
+  .reveal-actions {
+    padding: 0.4rem 1rem 0.4rem;
+  }
+  .btn {
+    padding: 0.65rem;
+    font-size: 0.85rem;
+    border-radius: 0.7rem;
+  }
+
+  /* Champion celebration — image and crown shrink so the action
+     buttons stay visible above the footer. */
+  .champion-screen {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 2.5rem);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 3.5rem);
+  }
+  .champion-content { gap: 0.4rem; padding: 0.35rem 0; }
+  .champion-crown   { font-size: clamp(1.75rem, 8vw, 3rem); }
+  .champion-image   { max-width: 220px; }
+  .champion-image img { max-height: 60vh; }
+  .champion-image .emoji-fallback { font-size: clamp(4rem, 22vw, 8rem); }
+  .champion-name {
+    font-size: clamp(1.4rem, 6vw, 2.25rem);
+  }
+  .champion-category { font-size: 0.7rem; }
+  .champion-actions { gap: 0.4rem; padding: 0 0.5rem 0.4rem; }
+  .champion-actions .btn { min-width: 100px; }
+
+  /* My Champions list — compact rows */
+  .champions-page {
+    padding: calc(env(safe-area-inset-top, 0px) + 2.75rem) 1rem
+             calc(env(safe-area-inset-bottom, 0px) + 3.25rem);
+  }
+  .champions-header { margin-bottom: 0.5rem; }
+  .champions-title { font-size: 1.1rem; }
+  .champion-row    { padding: 0.55rem 0.85rem; gap: 0.7rem; }
+
+  /* Loading + transition cards — keep the card readable but not huge */
+  .transition-name { font-size: clamp(2rem, 9vh, 3.5rem); }
+  .loading-emoji   { font-size: 2.75rem; margin-bottom: 0.75rem; }
+  .loading-label   { font-size: 0.95rem; margin-bottom: 0.6rem; }
+
+  /* Footer — slimmer pill so it doesn't eat ~50px of a 390px viewport */
+  .site-footer {
+    font-size: 0.66rem;
+    padding: 0.35rem 1rem calc(env(safe-area-inset-bottom, 0px) + 0.35rem);
+    gap: 0.25rem;
+  }
+  .site-footer .footer-link {
+    padding: 0.3rem 0.5rem;
+  }
 }
