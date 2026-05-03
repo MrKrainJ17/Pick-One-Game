@@ -24,16 +24,129 @@
  * via OpenMoji, so adding new items is just a matter of writing
  * "Name <emoji>" — no need to look up image URLs by hand.
  */
+/**
+ * Microsoft Fluent Emoji 3D — primary cartoon source.
+ * Microsoft's repo uses NAME-keyed folders (e.g. assets/Pizza/3D/...),
+ * not codepoint-keyed, so this hand-built emoji-to-folder table is
+ * the only way to derive a URL. 349 entries cover the most-used
+ * emojis in the game; everything else falls through to Twemoji at
+ * runtime via the existing fallback chain.
+ */
+const FLUENT_FOLDERS = {
+  "🪗":"Accordion", "⏰":"Alarm clock", "👽":"Alien", "👾":"Alien monster",
+  "⚓":"Anchor", "🐜":"Ant", "🚗":"Automobile", "🥑":"Avocado",
+  "🥓":"Bacon", "🥯":"Bagel", "🥖":"Baguette bread", "🎈":"Balloon",
+  "🍌":"Banana", "🪕":"Banjo", "⚾":"Baseball", "🏀":"Basketball",
+  "🦇":"Bat", "🐻":"Bear", "🦫":"Beaver", "🍺":"Beer mug",
+  "🪲":"Beetle", "🔔":"Bell", "🫑":"Bell pepper", "🍱":"Bento box",
+  "🧃":"Beverage box", "🚲":"Bicycle", "🎂":"Birthday cake", "🦬":"Bison",
+  "⚫":"Black circle", "🖤":"Black heart", "🔵":"Blue circle", "🟦":"Blue square",
+  "🫐":"Blueberries", "💣":"Bomb", "🦴":"Bone", "🍾":"Bottle with popping cork",
+  "🏹":"Bow and arrow", "🥣":"Bowl with spoon", "🥊":"Boxing glove", "🧠":"Brain",
+  "🍞":"Bread", "🧱":"Brick", "🌉":"Bridge at night", "💼":"Briefcase",
+  "🥦":"Broccoli", "🟤":"Brown circle", "🟫":"Brown square", "🧋":"Bubble tea",
+  "🐛":"Bug", "🎯":"Bullseye", "🌯":"Burrito", "🦋":"Butterfly",
+  "🌵":"Cactus", "🍬":"Candy", "🥕":"Carrot", "🏰":"Castle",
+  "🐱":"Cat face", "🧀":"Cheese wedge", "🍒":"Cherries", "🌸":"Cherry blossom",
+  "🌰":"Chestnut", "🐔":"Chicken", "🍫":"Chocolate bar", "🎄":"Christmas tree",
+  "⛪":"Church", "🎬":"Clapper board", "🍻":"Clinking beer mugs", "🥂":"Clinking glasses",
+  "📋":"Clipboard", "🤡":"Clown face", "🍸":"Cocktail glass", "🥥":"Coconut",
+  "🪙":"Coin", "💥":"Collision", "😖":"Confounded face", "🍚":"Cooked rice",
+  "🍪":"Cookie", "🍳":"Cooking", "🐄":"Cow", "🤠":"Cowboy hat face",
+  "🦀":"Crab", "🐊":"Crocodile", "🥐":"Croissant", "👑":"Crown",
+  "😢":"Crying face", "🥒":"Cucumber", "🥤":"Cup with straw", "🧁":"Cupcake",
+  "🍛":"Curry rice", "🍮":"Custard", "🥩":"Cut of meat", "🌀":"Cyclone",
+  "💨":"Dashing away", "🌳":"Deciduous tree", "🦌":"Deer", "🪔":"Diya lamp",
+  "🐕":"Dog", "🐶":"Dog face", "🐬":"Dolphin", "🍩":"Doughnut",
+  "🐉":"Dragon", "🐲":"Dragon face", "💧":"Droplet", "🥁":"Drum",
+  "🦆":"Duck", "🥟":"Dumpling", "🦅":"Eagle", "🌽":"Ear of corn",
+  "🥚":"Egg", "🍆":"Eggplant", "🐘":"Elephant", "🌲":"Evergreen tree",
+  "🐑":"Ewe", "😱":"Face screaming in fear", "😂":"Face with tears of joy", "🧆":"Falafel",
+  "🪶":"Feather", "🔥":"Fire", "🚒":"Fire engine", "🎆":"Fireworks",
+  "🐟":"Fish", "🦩":"Flamingo", "🎴":"Flower playing cards", "🪈":"Flute",
+  "🛸":"Flying saucer", "⛲":"Fountain", "🍀":"Four leaf clover", "🦊":"Fox",
+  "🍟":"French fries", "🎲":"Game die", "🧄":"Garlic", "💎":"Gem stone",
+  "👻":"Ghost", "🦒":"Giraffe", "🥛":"Glass of milk", "🌎":"Globe showing americas",
+  "🌐":"Globe with meridians", "🌟":"Glowing star", "🐐":"Goat", "🦍":"Gorilla",
+  "🍇":"Grapes", "🍏":"Green apple", "🟢":"Green circle", "💚":"Green heart",
+  "🥗":"Green salad", "😬":"Grimacing face", "🎸":"Guitar", "🍔":"Hamburger",
+  "🐹":"Hamster", "🤝":"Handshake", "🎧":"Headphone", "🦔":"Hedgehog",
+  "🌿":"Herb", "🌺":"Hibiscus", "⚡":"High voltage", "🥾":"Hiking boot",
+  "🛕":"Hindu temple", "🍯":"Honey pot", "🐝":"Honeybee", "🐎":"Horse",
+  "🐴":"Horse face", "☕":"Hot beverage", "🌭":"Hot dog", "🌶️":"Hot pepper",
+  "🏨":"Hotel", "🏠":"House", "💯":"Hundred points", "🧊":"Ice",
+  "🍨":"Ice cream", "🔤":"Input latin letters", "🔡":"Input latin lowercase", "🏯":"Japanese castle",
+  "🃏":"Joker", "🦘":"Kangaroo", "💋":"Kiss mark", "🔪":"Kitchen knife",
+  "🥝":"Kiwi fruit", "🐨":"Koala", "🪜":"Ladder", "💻":"Laptop",
+  "🍃":"Leaf fluttering in wind", "🥬":"Leafy green", "🍋":"Lemon", "🦁":"Lion",
+  "🦎":"Lizard", "🦞":"Lobster", "🚂":"Locomotive", "🍭":"Lollipop",
+  "🪄":"Magic wand", "🔍":"Magnifying glass tilted left", "🀄":"Mahjong red dragon", "🥭":"Mango",
+  "🍁":"Maple leaf", "🥋":"Martial arts uniform", "🍖":"Meat on bone", "🍈":"Melon",
+  "🕎":"Menorah", "🦠":"Microbe", "🎤":"Microphone", "🪖":"Military helmet",
+  "🌌":"Milky way", "🪞":"Mirror", "🗿":"Moai", "💰":"Money bag",
+  "💸":"Money with wings", "🐒":"Monkey", "🕌":"Mosque", "🗻":"Mount fuji",
+  "🐭":"Mouse face", "🍄":"Mushroom", "🎹":"Musical keyboard", "🎵":"Musical note",
+  "🎶":"Musical notes", "🤓":"Nerd face", "🌑":"New moon", "🌃":"Night with stars",
+  "🐙":"Octopus", "🍢":"Oden", "🧅":"Onion", "🟠":"Orange circle",
+  "🟧":"Orange square", "🦧":"Orangutan", "🦦":"Otter", "🦉":"Owl",
+  "🐂":"Ox", "🦪":"Oyster", "📦":"Package", "🌴":"Palm tree",
+  "🥞":"Pancakes", "🐼":"Panda", "🪂":"Parachute", "🦜":"Parrot",
+  "🎉":"Party popper", "🐾":"Paw prints", "🍑":"Peach", "🦚":"Peacock",
+  "🥜":"Peanuts", "🍐":"Pear", "🐧":"Penguin", "🎭":"Performing arts",
+  "🥧":"Pie", "🐖":"Pig", "🐷":"Pig face", "💊":"Pill",
+  "🍍":"Pineapple", "🍕":"Pizza", "🐻‍❄️":"Polar bear", "🚓":"Police car",
+  "🍿":"Popcorn", "📯":"Postal horn", "🍲":"Pot of food", "🥔":"Potato",
+  "🍗":"Poultry leg", "🥨":"Pretzel", "🟣":"Purple circle", "💜":"Purple heart",
+  "🐰":"Rabbit face", "🦝":"Raccoon", "🌈":"Rainbow", "🏳️‍🌈":"Rainbow flag",
+  "🍎":"Red apple", "🔴":"Red circle", "❓":"Red question mark", "🟥":"Red square",
+  "🍘":"Rice cracker", "💍":"Ring", "🪐":"Ringed planet", "🤖":"Robot",
+  "🪨":"Rock", "🚀":"Rocket", "🐓":"Rooster", "🌹":"Rose",
+  "👟":"Running shoe", "⛵":"Sailboat", "🍶":"Sake", "🧂":"Salt",
+  "🥪":"Sandwich", "🎷":"Saxophone", "🌱":"Seedling", "🥘":"Shallow pan of food",
+  "🦈":"Shark", "🍧":"Shaved ice", "🌾":"Sheaf of rice", "🚢":"Ship",
+  "🍰":"Shortcake", "🦐":"Shrimp", "🛹":"Skateboard", "💀":"Skull",
+  "🦨":"Skunk", "🎰":"Slot machine", "🦥":"Sloth", "😈":"Smiling face with horns",
+  "🐌":"Snail", "🐍":"Snake", "⛄":"Snowman without snow", "⚽":"Soccer ball",
+  "🍦":"Soft ice cream", "🥎":"Softball", "🍝":"Spaghetti", "✨":"Sparkles",
+  "💖":"Sparkling heart", "🥄":"Spoon", "🐳":"Spouting whale", "🦑":"Squid",
+  "😝":"Squinting face with tongue", "⭐":"Star", "🗽":"Statue of liberty", "🍜":"Steaming bowl",
+  "🩺":"Stethoscope", "🍓":"Strawberry", "🥙":"Stuffed flatbread", "🌻":"Sunflower",
+  "🍣":"Sushi", "🦢":"Swan", "🌮":"Taco", "🍊":"Tangerine",
+  "🍵":"Teacup without handle", "📞":"Telephone receiver", "📺":"Television", "🧪":"Test tube",
+  "🐅":"Tiger", "🐯":"Tiger face", "🗼":"Tokyo tower", "🍅":"Tomato",
+  "🦷":"Tooth", "🎩":"Top hat", "🏆":"Trophy", "🍹":"Tropical drink",
+  "🐠":"Tropical fish", "🎺":"Trumpet", "🥃":"Tumbler glass", "🦃":"Turkey",
+  "🐢":"Turtle", "🦄":"Unicorn", "🚦":"Vertical traffic light", "🎮":"Video game",
+  "🎻":"Violin", "🌋":"Volcano", "🧇":"Waffle", "🔫":"Water pistol",
+  "🌊":"Water wave", "🍉":"Watermelon", "💒":"Wedding", "🐋":"Whale",
+  "⚪":"White circle", "🍷":"Wine glass", "🐺":"Wolf", "🟡":"Yellow circle",
+  "🦓":"Zebra",
+};
+
+function emojiToFluentUrl(emoji) {
+  const folder = FLUENT_FOLDERS[emoji];
+  if (!folder) return null;
+  const filename = folder.toLowerCase()
+    .replace(/[ -]/g, "_")
+    .replace(/[:']/g, "")
+    + "_3d.png";
+  return "https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/"
+       + encodeURIComponent(folder) + "/3D/" + filename;
+}
+
 function parseItems(str) {
   return str.split(", ").map(s => {
     const i = s.lastIndexOf(" ");
     const emoji = s.slice(i + 1).trim();
+    const fluent = emojiToFluentUrl(emoji);
     return {
       name: s.slice(0, i).trim(),
       emoji,
       kind: "emoji",
-      image: emojiToTwemojiUrl(emoji),       // primary — vibrant Twitter cartoons
-      imageBackup: emojiToOpenMojiUrl(emoji) // secondary — covers newer codepoints Twemoji v14 lacks
+      // Primary: Fluent 3D PNG when we have a mapping; otherwise Twemoji.
+      // Backup:  Twemoji (or OpenMoji when Fluent is the primary path).
+      image: fluent || emojiToTwemojiUrl(emoji),
+      imageBackup: fluent ? emojiToTwemojiUrl(emoji) : emojiToOpenMojiUrl(emoji)
     };
   });
 }
@@ -90,6 +203,26 @@ const CATEGORIES = {
       "Oysters 🦪, Tofu 🍱, Avocado 🥑, Falafel 🧆, Hummus 🥙, " +
       "Quesadilla 🌮, Enchiladas 🌯, Pad Thai 🍜, Pho 🍜, Gyro 🥙, " +
       "Kebab 🍢, Empanada 🥟, Risotto 🍚, Paella 🥘"
+    )
+  },
+  fancyFoods: {
+    name: "Fancy Foods",
+    emoji: "🦞",
+    accent: "#c9a14a",
+    items: parseItems(
+      "Caviar 🥄, Lobster 🦞, Filet Mignon 🥩, Foie Gras 🦆, Truffle 🍄, " +
+      "Wagyu Beef 🥩, Oysters 🦪, Escargot 🐌, Duck Confit 🦆, Beef Wellington 🥩, " +
+      "Risotto 🍚, Crème Brûlée 🍮, Soufflé 🍰, Macarons 🧁, Tiramisu 🍰, " +
+      "Sushi Omakase 🍣, Sashimi 🍣, Uni 🍣, Kobe Beef 🥩, Frog Legs 🐸, " +
+      "Veal 🍖, Quail 🐦, Pheasant 🐦, Squab 🐦, Octopus Carpaccio 🐙, " +
+      "Tuna Tartare 🐟, Beef Tartare 🥩, Carpaccio 🥩, Prosciutto 🍖, Charcuterie Board 🧀, " +
+      "Cheese Plate 🧀, Brie 🧀, Camembert 🧀, Gruyère 🧀, Manchego 🧀, " +
+      "Truffle Pasta 🍝, Lobster Bisque 🍲, French Onion Soup 🍲, Bouillabaisse 🍲, Coq au Vin 🍗, " +
+      "Ratatouille 🍆, Eggs Benedict 🍳, Lobster Roll 🥪, Surf and Turf 🦞, Crab Cakes 🦀, " +
+      "Scallops 🐚, King Crab Legs 🦀, Caviar Blini 🥞, Smoked Salmon 🐟, Gravlax 🐟, " +
+      "Tartare 🥩, Risotto Milanese 🍚, Saffron Paella 🥘, Rack of Lamb 🍖, Osso Buco 🍖, " +
+      "Chateaubriand 🥩, Bone Marrow 🦴, Sweetbreads 🍖, Truffle Fries 🍟, Lobster Mac and Cheese 🧀, " +
+      "Black Cod 🐟, Sea Bass 🐟, Halibut 🐟, Dover Sole 🐟"
     )
   },
   movies: {
@@ -1199,9 +1332,9 @@ function renderHome() {
       <div class="category-list">
         ${Object.entries(CATEGORIES).map(([key, cat]) => `
           <button class="category-card" data-category="${key}">
-            <img class="cat-icon" src="${emojiToTwemojiUrl(cat.emoji)}" alt=""
+            <img class="cat-icon" src="${emojiToFluentUrl(cat.emoji) || emojiToTwemojiUrl(cat.emoji)}" alt=""
                  data-emoji="${cat.emoji}"
-                 data-backup="${emojiToOpenMojiUrl(cat.emoji)}"
+                 data-backup="${emojiToTwemojiUrl(cat.emoji)}"
                  onerror="window.__pickoneImgFallback(this)" />
             <span class="info">
               <span class="name">${cat.name}</span>

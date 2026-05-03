@@ -160,6 +160,7 @@ button { font-family: inherit; color: inherit; background: none; border: none; }
 
 /* per-category accent borders + tap highlights */
 .category-card[data-category="food"]       { border-color: rgba(255, 107, 61, 0.55); }
+.category-card[data-category="fancyFoods"] { border-color: rgba(201, 161, 74, 0.55); }
 .category-card[data-category="movies"]     { border-color: rgba(77, 171, 247, 0.55); }
 .category-card[data-category="drinks"]     { border-color: rgba(149, 117, 205, 0.55); }
 .category-card[data-category="sports"]     { border-color: rgba(56, 178, 110, 0.55); }
@@ -234,23 +235,26 @@ button { font-family: inherit; color: inherit; background: none; border: none; }
   width: 100%;
   min-height: 0;
 }
-/* Default: cartoon-style image — keep the original 85% contained look. */
+/* Default: cartoon-style image — 85% contained, layered drop-shadow so
+   the cartoon pops off the gradient button background. */
 .option-image img {
   max-width: min(85%, 380px);
   max-height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 10px 22px var(--shadow)) drop-shadow(0 3px 8px rgba(0, 0, 0, 0.22));
+  filter: drop-shadow(0 12px 26px var(--shadow))
+          drop-shadow(0 4px 10px rgba(0, 0, 0, 0.28));
   pointer-events: none; /* clicks fall through to the parent button */
-  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* Fast pop on tap (~150ms total round-trip): 75ms in, 75ms out. */
+  transition: transform 0.075s ease-out;
 }
-.option:active .option-image img { transform: scale(1.05); }
+.option:active .option-image img { transform: scale(1.08); }
 .option-image .emoji-fallback {
   font-size: clamp(5rem, 26vw, 13rem);
   line-height: 1;
   filter: drop-shadow(0 6px 16px var(--shadow));
-  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 0.075s ease-out;
 }
-.option:active .option-image .emoji-fallback { transform: scale(1.05); }
+.option:active .option-image .emoji-fallback { transform: scale(1.08); }
 
 .option .name {
   flex-shrink: 0;
